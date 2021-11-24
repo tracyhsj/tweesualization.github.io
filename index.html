@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>D3 Tabular Vis</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+<h1>The Amount of Tweets for each Candidate</h1>
+<script type="text/javascript">
+  //Tracy Hu
+  var w = 1000; 
+  var h = 800;
+  var cellpadding = 20; // pixels spacing between each bar 
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+    d3.csv('prep2_tweets_22.csv')
+    .then(function(data){//write codes in the then() function
+      console.log(data);  //access via data
+
+    var yScale = d3.scaleLinear()  
+    .domain([0, d3.max(data, function(d){   //input
+     return +d.Tweets;  //output
+    })])
+    .range([0, h/2]);  //devote half of the pixels to the bar, leaving the other half of the pixels for text
+
+
+    //make the smaller values of Calories to be lighter in color, and the larger values to be darker, reversed the direction, going from 255 (lighter in shade) to 0 (darker in shade)
+     var colorScale = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d){
+      return +d.Tweets;
+    }) ])
+    .range(['white', 'purple']);
+
+      svg.selectAll("rect")//creat reactangles for bars
+   .data(data)
+   .enter()//do something with all items in our data that does not have a visual representation in the DOM
+   .append("rect")//actually create a rectangle for each record
+   .attr("width", w / data.length - cellpadding)
+  .attr("height", h)
+  .attr("x", function(d, i){  //x is assigned values from the function,  i from data
+    return w / data.length * i;  //space out each rectangles by using the attr x
+    })
+  .attr("height", function(d){
+   return yScale(d.Tweets);
+   })
+  .attr("y", function(d){
+    console.log(yScale(d["Tweets"]));
+   return h/2-yScale(d.Tweets);//In d3,(x=0, y=0) is in upper-left corner of the SVG, need to subtract the height of the bar from the height of the SVG element to line up at bottom
+   })
+  .attr("fill", function(d){
+    var f = colorScale(d.Tweets);
+    return f
+    // var maxv=d3.max(data, function(d){return +d.Tweets;})
+    // if(d.Tweets >= 0.8*maxv)  //top 20%
+    //  return "rgb(" + 255 + ",0,0)";
+    // else
+    //   return f
+     //return "rgb(" + f + "," + f + "," + f + ")";  //apply color to each bars
+  })
+   .on("mouseover", function(event, d){
+          d3.select(this)
+              .style("fill", "yellow")
+          // d3.select('#n'+d.data.i)
+          //     .style("fill", "yellow")
+      })
+      .on("mouseout", function(event, d){
+          d3.select(this)
+            .style("fill", function(d){  //Customized Look: nodes are blue if male, pink if female
+            var f = colorScale(d.Tweets);
+              return f
+            })
+              // .style("fill", d => d.children ? "rgb(0, 145, 242)" : "#999")
+          // d3.select('#n'+d.data.i)
+          // .style("fill", function(d){  //Customized Look: nodes are blue if male, pink if female
+          //   var f = colorScale(d.Tweets);
+          //   return f
+          //   });
+            // .style("fill", "rgb(0, 145, 242)");
+      })
+  ;
+
+  //Add labels by selecting all of the text elements in the SVG and appending new text elements for each record
+  svg.selectAll("text")
+    .data(data)
+    .enter()
+    .append("text")
+    .text(function(d){
+     return d["Time"];
+    })
+    //To line them up with our bars by translating them to the x and y coordinates, and rotate  90 degrees
+  .attr("transform", function(d, i){
+    return "translate(" + w / data.length * i +
+      ","+h/2+")"+"rotate(90)"
+  })
+  .append("text")
+    .text(function(d){
+     return d.Tweets;
+    })
+  .attr("transform", function(d, i){
+    return "translate(" + w / data.length * i +
+      ","+(h/2+10)+")"+"rotate(90)"
+  })
+    // .attr("x", function(d, i){  
+    // return w / data.length * i;  
+    // })
+    // .attr("y", (h/2-50))
+ 
+
+//x aixs
+svg.append("text")
+    .attr("fill", "black")
+    .attr("x", 100)
+    .attr("y", 500)
+    .style("text-anchor", "middle")
+    .attr("transform", "translate(" + w/2 + ",80)")
+    .text("TimeLine(2020 Presidnetial Debate)")  
+
+ })
+
+  </script>
+
+</body>
+</html>
+
+
+
+
+<!-- First Version -->
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>D3 Tabular Vis</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+<h1>Bar Chart for the Amount of Tweets</h1>
+<script type="text/javascript">
+  var w = 1000; 
+  var h = 800;
+  var cellpadding = 20; // pixels spacing between each bar 
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+    d3.csv('prep_tweets_22.csv')
+    .then(function(data){//write codes in the then() function
+      console.log(data);  //access via data
+
+    var yScale = d3.scaleLinear()  
+    .domain([0, d3.max(data, function(d){   //input
+     return +d.Tweets;  //output
+    })])
+    .range([0, h/2]);  //devote half of the pixels to the bar, leaving the other half of the pixels for text
+
+
+    //make the smaller values of Calories to be lighter in color, and the larger values to be darker, reversed the direction, going from 255 (lighter in shade) to 0 (darker in shade)
+     var colorScale = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d){
+      return +d.Tweets;
+    }) ])
+    .range(['white', 'purple']);
+
+      svg.selectAll("rect")//creat reactangles for bars
+   .data(data)
+   .enter()//do something with all items in our data that does not have a visual representation in the DOM
+   .append("rect")//actually create a rectangle for each record
+   .attr("width", w / data.length - cellpadding)
+  .attr("height", h)
+  .attr("x", function(d, i){  //x is assigned values from the function,  i from data
+    return w / data.length * i;  //space out each rectangles by using the attr x
+    })
+  .attr("height", function(d){
+   return yScale(d.Tweets);
+   })
+  .attr("y", function(d){
+    console.log(yScale(d["Tweets"]));
+   return h/2-yScale(d.Tweets);//In d3,(x=0, y=0) is in upper-left corner of the SVG, need to subtract the height of the bar from the height of the SVG element to line up at bottom
+   })
+  .attr("fill", function(d){
+    var f = colorScale(d.Tweets);
+    return f
+    // var maxv=d3.max(data, function(d){return +d.Tweets;})
+    // if(d.Tweets >= 0.8*maxv)  //top 20%
+    //  return "rgb(" + 255 + ",0,0)";
+    // else
+    //   return f
+     //return "rgb(" + f + "," + f + "," + f + ")";  //apply color to each bars
+  });
+
+  //Add labels by selecting all of the text elements in the SVG and appending new text elements for each record
+  svg.selectAll("text")
+    .data(data)
+    .enter()
+    .append("text")
+    .text(function(d){
+     return d["Candidate"];
+    })
+    //To line them up with our bars by translating them to the x and y coordinates, and rotate  90 degrees
+  .attr("transform", function(d, i){
+    return "translate(" + w / data.length * i +
+      ","+h/2+")"+"rotate(90)"
+  })  
+
+ })
+
+  </script>
+
+</body>
+</html> -->
